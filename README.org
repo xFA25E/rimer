@@ -44,10 +44,13 @@ It can be used as a countdown and as a stopwatch.
   Install rust and cargo
 
   Clone the repository
+
   ~$ git clone ...~
 
   Enter directory and
+
   ~$ cargo build --release~
 * Installation
   You can install it in the cargo's executables directory
+
   ~$ cargo install --path . --force~
