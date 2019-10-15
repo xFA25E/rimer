@@ -1,53 +1,67 @@
 #+TITLE: Rimer: simple timer
 
 Rimer is a timer that executes commands on every update step.
-It can be used as a countdown and as a stopwatch.
+It can run multiple timers and be used as countdown or as stopwatch.
 
 * Modivation
-  I use a pomodoro technique to increase my productivity. I, also, use
-  *lemonbar* as my panel. So, I wanted to output timer status on my panel and,
-  as usual, couldn't find any software that does that. I was, also, learning
-  rust, so I decided to write a new timer in rust (the previous one was written
-  in clojure).
+  I like pomodoro technique and I like lemonbar. I wanted to track remaining
+  pomodoro time on my panel and couldn't find any ready solution. I was also
+  learning rust, so I decided to write new timer in it (the previous one that I
+  used was written in clojure and C).
 
-  Now, I have a little script, panel_timer, that rimer calls every 10 seconds.
-  This script updates lemonbar by passing it a new value of timer. If
-  panel_timer detects that one of the timers is finished, by looking at the
-  timer name, it logs the work done to my activity.log file.
+  Now I have a little script, panel_timer, that rimer calls every 10 seconds.
+  It updates lemonbar and my activity.log file when timer is halted.
 
   Also, I have another script that provides a rofi-based menu to rimer. I might
   publish it later.
 * What it does
-  The way it works is by passing to it a command to execute when you start
-  daemon. The daemon sits in background and waits for remote commands.
+  You start daemon with a commmand
 
-  Commands are passed to it with =remote= subcommand. To create a new timer
-  (countdown or stopwatch), you should specify the *name* and *duration* (only
-  for countdown, of course). *step* is 10 seconds by default. You can have
-  multiple timers at a time. On every update, rimer will execute the command
-  with the following arguments (in this order):
-  ~$ <your command> <kind> <elapsed_time> <total_time> <status>~
+  ~$ rimer daemon <command>~
 
-  Kind can be:
-  - countdown
-  - stopwatch
+  ~<command>~ will be called every timer step with the following arguments:
 
-  Status can be:
-  - running
-  - paused
-  - halted
+  ~<name> <kind> <elapsed time> <total time to run> <status>~
 
-  Other arguments are pretty self-explanatory.
+  ~<name>~ is used to distinguish different running timers. ~<kind>~ can be
+  ~countdown~ or ~stopwatch~.
 
-  For more information on commands use ~help~ subcommand.
+  If you run your timer like this:
+
+  ~$ rimer remote countdown work --duration 3600 --step 5~
+
+  New countdown timer with name ~work~ will be added and it will run 3600
+  seconds. Every 5 seconds the ~<command>~ will be called like this:
+
+  ~$ <command> work countdown <elapsed time> 3600 running~
+
+  If you pause the timer
+
+  ~$ rimer remote pause work~
+
+  Rimer will update ~work~ timer:
+
+  ~$ <command> countdown work <elapsed time> 3600 paused
+
+  Resume timer:
+
+  ~$ rimer remote resume work~
+
+  The final update will have the status ~halted~. You can explicitly halt your
+  timer with halt command:
+
+  ~$ rimer remote halt work~
+
+  ~stopwatch~ is the same as ~countdown~ but the ~<total time to run>~ will be a
+  maximum *unsigned 64 bit integer*. I hope you will never run your stopwatch
+  for a period so long :). I know that it's a hack, but it keeps implementation
+  simple IMO.
+
+  Other commands are ~report~, ~quit~ and ~help~. ~report~ gives you a list of
+  all currently present timers in the same format as described above. ~quit~
+  tells *rimer* to quit daemon.
 * Building
-  Install rust and cargo
-
-  Clone the repository
-
-  ~$ git clone ...~
-
-  Enter directory and
+  Install rust and cargo. Download this repo and run in the directory:
 
   ~$ cargo build --release~
 * Installation
