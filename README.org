@@ -1,0 +1,53 @@
+#+TITLE: Rimer: simple timer
+
+* Rimer: simple timer
+  Rimer is a timer that executes commands on every update step.
+  It can be used as a countdown and as a stopwatch.
+* Modivation
+  I use a pomodoro technique to increase my productivity. I, also, use
+  *lemonbar* as my panel. So, I wanted to output timer status on my panel and,
+  as usual, couldn't find any software that does that. I was, also, learning
+  rust, so I decided to write a new timer in rust (the previous one was written
+  in clojure).
+
+  Now, I have a little script, panel_timer, that rimer calls every 10 seconds.
+  This script updates lemonbar by passing it a new value of timer. If
+  panel_timer detects that one of the timers is finished, by looking at the
+  timer name, it logs the work done to my activity.log file.
+
+  Also, I have another script that provides a rofi-based menu to rimer. I might
+  publish it later.
+* What it does
+  The way it works is by passing to it a command to execute when you start
+  daemon. The daemon sits in background and waits for remote commands.
+
+  Commands are passed to it with =remote= subcommand. To create a new timer
+  (countdown or stopwatch), you should specify the *name* and *duration* (only
+  for countdown, of course). *step* is 10 seconds by default. You can have
+  multiple timers at a time. On every update, rimer will execute the command
+  with the following arguments (in this order):
+  ~$ <your command> <kind> <elapsed_time> <total_time> <status>~
+
+  Kind can be:
+  - countdown
+  - stopwatch
+
+  Status can be:
+  - running
+  - paused
+  - halted
+
+  Other arguments are pretty self-explanatory.
+
+  For more information on commands use ~help~ subcommand.
+* Building
+  Install rust and cargo
+
+  Clone the repository
+  ~$ git clone ...~
+
+  Enter directory and
+  ~$ cargo build --release~
+* Installation
+  You can install it in the cargo's executables directory
+  ~$ cargo install --path . --force~
