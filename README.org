@@ -12,8 +12,7 @@ It can run multiple timers and be used as countdown or as stopwatch.
   Now I have a little script, panel_timer, that rimer calls every 10 seconds.
   It updates lemonbar and my activity.log file when timer is halted.
 
-  Also, I have another script that provides a rofi-based menu to rimer. I might
-  publish it later.
+  Also, I have another script that provides a rofi-based menu to rimer.
 * What it does
   You start daemon with a commmand
 
