@@ -1,8 +1,8 @@
 #+TITLE: Rimer: simple timer
 
-* Rimer: simple timer
-  Rimer is a timer that executes commands on every update step.
-  It can be used as a countdown and as a stopwatch.
+Rimer is a timer that executes commands on every update step.
+It can be used as a countdown and as a stopwatch.
+
 * Modivation
   I use a pomodoro technique to increase my productivity. I, also, use
   *lemonbar* as my panel. So, I wanted to output timer status on my panel and,
