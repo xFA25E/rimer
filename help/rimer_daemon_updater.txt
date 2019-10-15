@@ -1,0 +1,7 @@
+Updater is a program that will be executed on every timer step (see remote subcommand). This program should take 4 command line arguments in the following order:
+
+$ <UPDATER> <name> <kind> <time elapsed> <duration> <state>
+
+State can be "running", "paused" or "halted"
+Kind can be "countdown" or "stopwatch".
+In case the kind is a "stopwatch" the duration will be a max u64. It's okey because max u64 is bigger than the human lifetime.

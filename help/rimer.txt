@@ -1,0 +1,3 @@
+Rimer - timer
+
+Rimer is a concurrent timer (many timers can run simultaneously)

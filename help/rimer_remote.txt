@@ -1,0 +1,9 @@
+This subcommand manages main rimer process. It can add, pause, resume and halt timers.
+
+Also, it can get timer reports. Timer report is a snapshot of all currently running timers in the following format:
+
+name1 kind elapsed_time total_timer_time status
+name2 kind elapsed_time total_timer_time status
+name3 ...etc.
+
+The quit command shuts down daemon
