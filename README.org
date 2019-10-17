@@ -5,7 +5,7 @@ It can run multiple timers and be used as countdown or as stopwatch.
 
 * Motivation
   I like pomodoro technique and I like lemonbar. I wanted to track remaining
-  pomodoro time on my panel and couldn't find any ready solution. I was also
+  pomodoro time on my panel and couldn't find any ready-made solution. I was also
   learning rust, so I decided to write new timer in it (the previous one that I
   used was written in clojure and C).
 
