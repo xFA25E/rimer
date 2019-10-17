@@ -10,7 +10,7 @@ It can run multiple timers and be used as countdown or as stopwatch.
   used was written in clojure and C).
 
   Now I have a little script, panel_timer, that rimer calls every 10 seconds.
-  It updates lemonbar and my activity.log file when timer is halted.
+  It updates lemonbar and my activity.log file when the timer is halted.
 
   Also, I have another script that provides a rofi-based menu to rimer.
 * What it does
