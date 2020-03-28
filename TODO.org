@@ -1,6 +1,0 @@
-* Make separate collections for paused and runnnig timers
-* Also make more correct timers with SysTime
-* Maybe stopwatch timers was a bad idea.
-  Just use max value for stopwatch timers.
-* Also redesign it with csp concurrency
-* Use sets instead of arrays
