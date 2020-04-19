@@ -1,12 +1,22 @@
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 #[derive(Deserialize, Serialize)]
 pub enum Request {
-    Countdown { name: String, dur: u64, step: u64 },
-    Stopwatch { name: String, step: u64 },
-    Pause(String),
-    Halt(String),
-    Resume(String),
+    Add {
+        name: String,
+        duration: Duration,
+        step: Duration,
+    },
+    Pause {
+        name: String,
+    },
+    Halt {
+        name: String,
+    },
+    Resume {
+        name: String,
+    },
     Report,
     Quit,
 }

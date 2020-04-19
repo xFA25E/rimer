@@ -1,7 +1,7 @@
 #+TITLE: Rimer: simple timer
 
 Rimer is a timer that executes commands on every update step.
-It can run multiple timers and be used as countdown or as stopwatch.
+It can run multiple timers and can be used as countdown or as stopwatch.
 
 * Motivation
   I like pomodoro technique and I like lemonbar. I wanted to track remaining
@@ -14,50 +14,49 @@ It can run multiple timers and be used as countdown or as stopwatch.
 
   Also, I have another script that provides a rofi-based menu to rimer.
 * What it does
-  You start daemon with a commmand
+  You start server with the following commmand
 
-  ~$ rimer daemon <command>~
+  ~$ rimer start <command>~
 
   ~<command>~ will be called every timer step with the following arguments:
 
-  ~<name> <kind> <elapsed time> <total time to run> <status>~
+  ~<name> <elapsed time> <total time to run> <status>~
 
-  ~<name>~ is used to distinguish different running timers. ~<kind>~ can be
-  ~countdown~ or ~stopwatch~.
+  ~<name>~ is used to distinguish different running timers.
 
   If you run your timer like this:
 
-  ~$ rimer remote countdown work --duration 3600 --step 5~
+  ~$ rimer add --name work --duration 3600 --step 5~
 
-  New countdown timer with name ~work~ will be added and it will run 3600
-  seconds. Every 5 seconds the ~<command>~ will be called like this:
+  New timer with name ~work~ will be added and it will run 3600 seconds. Every 5
+  seconds the ~<command>~ will be called like this:
 
-  ~$ <command> work countdown <elapsed time> 3600 running~
+  ~$ <command> work <elapsed time> 3600 running~
 
   If you pause the timer
 
-  ~$ rimer remote pause work~
+  ~$ rimer pause work~
 
   Rimer will update ~work~ timer:
 
-  ~$ <command> countdown work <elapsed time> 3600 paused~
+  ~$ <command> work <elapsed time> 3600 paused~
 
   Resume timer:
 
-  ~$ rimer remote resume work~
+  ~$ rimer resume --name work~
 
   The final update will have the status ~halted~. You can explicitly halt your
   timer with halt command:
 
-  ~$ rimer remote halt work~
+  ~$ rimer halt --name work~
 
-  ~stopwatch~ is the same as ~countdown~ but the ~<total time to run>~ will be a
-  maximum *unsigned 64 bit integer*. I hope you will never run your stopwatch
-  for a period so long :). This keeps implementation simple IMO.
+  You can use your timer as a ~stopwatch~ by setting duration to a maximum
+  *unsigned 64 bit integer*. I hope you will never run your stopwatch for a
+  period so long :). This keeps implementation simple IMO.
 
-  Other commands are ~report~, ~quit~ and ~help~. ~report~ gives you a list of
-  all currently present timers in the same format as described above. ~quit~
-  tells *rimer* to quit daemon.
+  Other commands are ~report~, ~quit~. ~report~ gives you a list of all
+  currently present timers in the same format as described above. ~quit~ tells
+  *rimer* to quit daemon.
 * Building
   Install rust and cargo. Download this repo and run in the directory:
 

@@ -1,10 +1,11 @@
+mod client;
 mod config;
-mod daemon;
-mod remote;
 mod request;
+mod response;
+mod server;
+mod snapshot;
 mod socket;
-
-pub use daemon::TimerUpdater;
+mod state;
 
 use config::Config;
 
@@ -16,10 +17,9 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
-    match Config::new() {
-        Config::Daemon(updater) => self::daemon::run(updater)?,
-        Config::Remote(request) => self::remote::run(request)?,
+    match config::make() {
+        Config::Server { command } => server::run(command)?,
+        Config::Client { request } => client::run(request)?,
     }
-
     Ok(())
 }
