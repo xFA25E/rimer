@@ -31,6 +31,8 @@ struct Inner {
 }
 
 pub fn run(command: String) -> Result<(), Box<dyn std::error::Error>> {
+    daemonize()?;
+
     let (halt_queue, halt_recv) = channel();
     let (report_queue, report_recv) = channel();
     let mut inner = Inner {
@@ -41,8 +43,6 @@ pub fn run(command: String) -> Result<(), Box<dyn std::error::Error>> {
         report_queue,
         report_recv,
     };
-
-    // daemonize()?;
 
     'main: loop {
         let listener = listener()?;
@@ -193,7 +193,7 @@ fn recv<S: Read + Copy>(stream: S) -> serde_json::Result<Request> {
     serde_json::from_reader(stream)
 }
 
-fn _daemonize() -> Result<(), Box<dyn std::error::Error>> {
+fn daemonize() -> Result<(), Box<dyn std::error::Error>> {
     Daemonize::new()
         .stderr({
             let mut p = dirs::cache_dir().unwrap();
