@@ -136,7 +136,10 @@ fn wait_message(inner: &mut Inner) -> Message {
             update_elapsed(inner);
             return Message::Halt;
         }
-        Ok(Message::Report) => send_report(&inner),
+        Ok(Message::Report) => {
+            update_elapsed(inner);
+            send_report(inner);
+        }
         Err(RecvTimeoutError::Timeout) | Ok(Message::Resume) => (),
         Ok(Message::ConfirmHalt) | Err(RecvTimeoutError::Disconnected) => {
             unreachable!()
@@ -155,7 +158,10 @@ fn wait_resume(inner: &mut Inner) -> Message {
                 break;
             }
             Ok(Message::Pause) => (),
-            Ok(Message::Report) => send_report(&inner),
+            Ok(Message::Report) => {
+                update_elapsed(inner);
+                send_report(inner);
+            }
             Ok(Message::Halt) => {
                 update_elapsed(inner);
                 return Message::Halt;
