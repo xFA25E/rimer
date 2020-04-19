@@ -1,5 +1,4 @@
-use crate::request::Request;
-
+use super::request::Request;
 use std::{
     fs::DirBuilder,
     io,
@@ -20,6 +19,10 @@ pub fn listener() -> io::Result<UnixListener> {
     }
 
     UnixListener::bind(sock)
+}
+
+pub fn stream() -> io::Result<UnixStream> {
+    UnixStream::connect(path()?)
 }
 
 pub fn path() -> std::io::Result<PathBuf> {
