@@ -1,4 +1,4 @@
-use crate::state::{is_halted, is_paused, State};
+use crate::state::State;
 use std::{
     process::Command,
     sync::{
@@ -26,27 +26,29 @@ pub struct Snapshot {
     pub state: State,
 }
 
-pub fn spawn(command: String) -> Updater {
-    let (queue, receiver) = channel();
+impl Updater {
+    pub fn spawn(command: String) -> Self {
+        let (queue, receiver) = channel();
 
-    let handle = thread::Builder::new()
-        .name("updater".into())
-        .spawn(|| run(command, receiver))
-        .unwrap();
+        let handle = thread::Builder::new()
+            .name("updater".into())
+            .spawn(|| run(command, receiver))
+            .unwrap();
 
-    Updater { queue, handle }
+        Updater { queue, handle }
+    }
+
+    pub fn quit(&self) {
+        self.queue.send(Message::Quit).unwrap();
+    }
+
+    pub fn join(self) {
+        self.handle.join().unwrap();
+    }
 }
 
 pub fn update(queue: &Sender<Message>, snapshot: Snapshot) {
     queue.send(Message::Update { snapshot }).unwrap();
-}
-
-pub fn quit(updater: &Updater) {
-    updater.queue.send(Message::Quit).unwrap();
-}
-
-pub fn join(updater: Updater) {
-    updater.handle.join().unwrap();
 }
 
 fn run(command: String, receiver: Receiver<Message>) {
@@ -72,14 +74,14 @@ fn handle_update(s: Snapshot, last_update: &mut Duration, command: &str) {
     if s.elapsed.as_secs() == 0
         || last_update.as_secs() == 0
         || remaining <= *last_update
-        || is_halted(s.state)
-        || is_paused(s.state)
+        || s.state.is_halted()
+        || s.state.is_paused()
     {
-        if is_paused(s.state) {
-            *last_update = Duration::from_secs(0);
+        *last_update = if s.state.is_paused() {
+            Duration::from_secs(0)
         } else {
-            *last_update = remaining;
-        }
+            remaining
+        };
 
         if let Err(error) = Command::new(command)
             .arg(&*s.name)

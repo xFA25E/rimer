@@ -17,7 +17,7 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
-    match config::make() {
+    match Config::new() {
         Config::Server { command } => server::run(command)?,
         Config::Client { request } => client::run(request)?,
     }

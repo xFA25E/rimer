@@ -7,106 +7,109 @@ pub enum Config {
     Client { request: Request },
 }
 
-pub fn make() -> Config {
-    let matches = App::new("rimer")
-        .max_term_width(80)
-        .version("1.0")
-        .author("xFA25E")
-        .about(include_str!("../help/rimer.txt"))
-        .arg(
-            Arg::with_name("COMMAND")
-                .empty_values(false)
-                .help("Command")
-                .possible_values(&[
-                    "start", "add", "pause", "resume", "halt", "report", "quit",
-                ])
-                .required(true)
-                .requires_ifs(&[
-                    ("start", "UPDATER"),
-                    ("add", "NAME"),
-                    ("add", "DURATION"),
-                    ("pause", "NAME"),
-                    ("halt", "NAME"),
-                    ("resume", "NAME"),
-                ])
-                .value_name("COMMAND"),
-        )
-        .arg(
-            Arg::with_name("UPDATER")
-                .empty_values(false)
-                .help(include_str!("../help/rimer_updater.txt"))
-                .next_line_help(true)
-                .validator(validate_program)
-                .value_name("UPDATER"),
-        )
-        .arg(
-            Arg::with_name("NAME")
-                .empty_values(false)
-                .help("Timer name")
-                .long("name")
-                .short("n")
-                .takes_value(true)
-                .value_name("NAME"),
-        )
-        .arg(
-            Arg::with_name("DURATION")
-                .empty_values(false)
-                .help("Seconds to run (max value unsigned 64bit integer)")
-                .long("duration")
-                .short("d")
-                .takes_value(true)
-                .validator(validate_duration)
-                .value_name("DURATION"),
-        )
-        .arg(
-            Arg::with_name("STEP")
-                .default_value("10")
-                .empty_values(false)
-                .help("Updater is executed every <STEP> seconds")
-                .long("step")
-                .short("s")
-                .takes_value(true)
-                .validator(validate_duration)
-                .value_name("STEP"),
-        )
-        .get_matches();
+impl Config {
+    pub fn new() -> Self {
+        let matches = App::new("rimer")
+            .max_term_width(80)
+            .version("1.0")
+            .author("xFA25E")
+            .about(include_str!("../help/rimer.txt"))
+            .arg(
+                Arg::with_name("COMMAND")
+                    .empty_values(false)
+                    .help("Command")
+                    .possible_values(&[
+                        "start", "add", "pause", "resume", "halt", "report",
+                        "quit",
+                    ])
+                    .required(true)
+                    .requires_ifs(&[
+                        ("start", "UPDATER"),
+                        ("add", "NAME"),
+                        ("add", "DURATION"),
+                        ("pause", "NAME"),
+                        ("halt", "NAME"),
+                        ("resume", "NAME"),
+                    ])
+                    .value_name("COMMAND"),
+            )
+            .arg(
+                Arg::with_name("UPDATER")
+                    .empty_values(false)
+                    .help(include_str!("../help/rimer_updater.txt"))
+                    .next_line_help(true)
+                    .validator(validate_program)
+                    .value_name("UPDATER"),
+            )
+            .arg(
+                Arg::with_name("NAME")
+                    .empty_values(false)
+                    .help("Timer name")
+                    .long("name")
+                    .short("n")
+                    .takes_value(true)
+                    .value_name("NAME"),
+            )
+            .arg(
+                Arg::with_name("DURATION")
+                    .empty_values(false)
+                    .help("Seconds to run (max value unsigned 64bit integer)")
+                    .long("duration")
+                    .short("d")
+                    .takes_value(true)
+                    .validator(validate_duration)
+                    .value_name("DURATION"),
+            )
+            .arg(
+                Arg::with_name("STEP")
+                    .default_value("10")
+                    .empty_values(false)
+                    .help("Updater is executed every <STEP> seconds")
+                    .long("step")
+                    .short("s")
+                    .takes_value(true)
+                    .validator(validate_duration)
+                    .value_name("STEP"),
+            )
+            .get_matches();
 
-    let value_of = |s| matches.value_of(s).unwrap();
-    let num_value_of = |s| value_of(s).parse::<u64>().unwrap();
+        let value_of = |s| matches.value_of(s).unwrap();
+        let num_value_of = |s| value_of(s).parse::<u64>().unwrap();
 
-    match value_of("COMMAND") {
-        "start" => Config::Server {
-            command: value_of("UPDATER").into(),
-        },
-        "add" => Config::Client {
-            request: Request::Add {
-                name: value_of("NAME").into(),
-                duration: Duration::from_secs(num_value_of("DURATION")),
-                step: Duration::from_secs(num_value_of("STEP")),
+        match value_of("COMMAND") {
+            "start" => Self::Server {
+                command: value_of("UPDATER").into(),
             },
-        },
-        "pause" => Config::Client {
-            request: Request::Pause {
-                name: value_of("NAME").into(),
+            "add" => Self::Client {
+                request: Request::Add {
+                    name: value_of("NAME").into(),
+                    duration: Duration::from_secs(num_value_of("DURATION")),
+                    step: Duration::from_secs(num_value_of("STEP")),
+                },
             },
-        },
-        "halt" => Config::Client {
-            request: Request::Halt {
-                name: value_of("NAME").into(),
+            "pause" => Self::Client {
+                request: Request::Pause {
+                    name: value_of("NAME").into(),
+                },
             },
-        },
-        "resume" => Config::Client {
-            request: Request::Resume {
-                name: value_of("NAME").into(),
+            "halt" => Self::Client {
+                request: Request::Halt {
+                    name: value_of("NAME").into(),
+                },
             },
-        },
-        "report" => Config::Client {
-            request: Request::Report,
-        },
-        "quit" => Config::Client {
-            request: Request::Quit,
-        },
-        _ => unreachable!(),
+            "resume" => Self::Client {
+                request: Request::Resume {
+                    name: value_of("NAME").into(),
+                },
+            },
+            "report" => Self::Client {
+                request: Request::Report,
+            },
+            "quit" => Self::Client {
+                request: Request::Quit,
+            },
+            _ => unreachable!(),
+        }
     }
 }
 

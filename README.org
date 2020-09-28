@@ -65,3 +65,5 @@ It can run multiple timers and can be used as countdown or as stopwatch.
   You can install it in the cargo's executables directory
 
   ~$ cargo install --path . --force~
+* Todo
+** Make single config with structopt

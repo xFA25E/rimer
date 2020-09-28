@@ -8,19 +8,21 @@ pub enum State {
     Halted,
 }
 
-pub fn is_paused(state: State) -> bool {
-    if let State::Paused = state {
-        true
-    } else {
-        false
+impl State {
+    pub fn is_paused(self) -> bool {
+        if let State::Paused = self {
+            true
+        } else {
+            false
+        }
     }
-}
 
-pub fn is_halted(state: State) -> bool {
-    if let State::Halted = state {
-        true
-    } else {
-        false
+    pub fn is_halted(self) -> bool {
+        if let State::Halted = self {
+            true
+        } else {
+            false
+        }
     }
 }
 

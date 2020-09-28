@@ -3,7 +3,7 @@ mod updater;
 
 use crate::{
     request::Request, response::Error, response::Response, snapshot as s,
-    socket::listener, state::is_halted,
+    socket::listener,
 };
 use daemonize::Daemonize;
 use std::{
@@ -16,13 +16,13 @@ use std::{
         Arc,
     },
 };
-use timer as t;
-use updater as u;
+use timer::Timer;
+use updater::{self as u, Updater};
 
-type Timers = HashMap<Arc<String>, t::Timer>;
+type Timers = HashMap<Arc<String>, Timer>;
 
 struct Inner {
-    updater: u::Updater,
+    updater: Updater,
     timers: Timers,
     halt_queue: Sender<Arc<String>>,
     halt_recv: Receiver<Arc<String>>,
@@ -36,7 +36,7 @@ pub fn run(command: String) -> Result<(), Box<dyn std::error::Error>> {
     let (halt_queue, halt_recv) = channel();
     let (report_queue, report_recv) = channel();
     let mut inner = Inner {
-        updater: u::spawn(command),
+        updater: Updater::spawn(command),
         timers: HashMap::new(),
         halt_queue,
         halt_recv,
@@ -106,7 +106,7 @@ fn handle_add<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
     } else {
         let name = Arc::new(name);
         if inner.timers.get(&name).is_none() {
-            let timer = t::spawn(
+            let timer = Timer::spawn(
                 Arc::clone(&name),
                 duration,
                 step,
@@ -123,10 +123,10 @@ fn handle_add<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
 }
 
 fn handle_cmd<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
-    let (name, cmd): (_, fn(&t::Timer)) = match request {
-        Request::Pause { name } => (name, t::pause),
-        Request::Halt { name } => (name, t::halt),
-        Request::Resume { name } => (name, t::resume),
+    let (name, cmd): (_, fn(&Timer)) = match request {
+        Request::Pause { name } => (name, Timer::pause),
+        Request::Halt { name } => (name, Timer::halt),
+        Request::Resume { name } => (name, Timer::resume),
         _ => unreachable!(),
     };
 
@@ -139,12 +139,12 @@ fn handle_cmd<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
 }
 
 fn handle_report<S: Write + Copy>(stream: S, inner: &Inner) {
-    inner.timers.values().for_each(t::report);
+    inner.timers.values().for_each(Timer::report);
     let report = inner
         .report_recv
         .iter()
         .take(inner.timers.len())
-        .filter(|usnapshot| !is_halted(usnapshot.state))
+        .filter(|usnapshot| !usnapshot.state.is_halted())
         .map(s::Snapshot::from)
         .collect();
 
@@ -153,12 +153,12 @@ fn handle_report<S: Write + Copy>(stream: S, inner: &Inner) {
 
 fn handle_quit<S: Write + Copy>(stream: S, inner: Inner) {
     let timers = inner.timers;
-    timers.values().for_each(t::halt);
-    timers.values().for_each(t::confirm_halt);
-    timers.into_iter().for_each(|(_, timer)| t::join(timer));
+    timers.values().for_each(Timer::halt);
+    timers.values().for_each(Timer::confirm_halt);
+    timers.into_iter().for_each(|(_, timer)| Timer::join(timer));
 
-    u::quit(&inner.updater);
-    u::join(inner.updater);
+    inner.updater.quit();
+    inner.updater.join();
     send_ok(stream);
 }
 
