@@ -3,7 +3,7 @@ use clap::{App, Arg};
 use std::{env, path::Path, time::Duration};
 
 pub enum Config {
-    Server { command: String },
+    Server { command: String, daemonize: bool },
     Client { request: Request },
 }
 
@@ -32,6 +32,12 @@ impl Config {
                         ("resume", "NAME"),
                     ])
                     .value_name("COMMAND"),
+            )
+            .arg(
+                Arg::with_name("DAEMONIZE")
+                    .help("Launch in background")
+                    .short("b")
+                    .long("background")
             )
             .arg(
                 Arg::with_name("UPDATER")
@@ -79,6 +85,7 @@ impl Config {
         match value_of("COMMAND") {
             "start" => Self::Server {
                 command: value_of("UPDATER").into(),
+                daemonize: matches.is_present("DAEMONIZE"),
             },
             "add" => Self::Client {
                 request: Request::Add {

@@ -30,8 +30,10 @@ struct Inner {
     report_recv: Receiver<u::Snapshot>,
 }
 
-pub fn run(command: String) -> Result<(), Box<dyn std::error::Error>> {
-    daemonize()?;
+pub fn run(command: String, daemon: bool) -> Result<(), Box<dyn std::error::Error>> {
+    if daemon {
+        daemonize()?;
+    }
 
     let (halt_queue, halt_recv) = channel();
     let (report_queue, report_recv) = channel();
