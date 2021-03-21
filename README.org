@@ -29,7 +29,7 @@ multiple timers and can be used as a countdown or as a stopwatch.
 
   Rimer will update ~work~ timer:
 
-  ~$ <callback> work <elapsed time> 3600 paused~
+  ~$ <callback> work <elapsed time> 3600 paused somevalue~
 
   Resume timer:
 
@@ -64,6 +64,7 @@ multiple timers and can be used as a countdown or as a stopwatch.
       rimer = import https://url.url pkgs;
     };
   #+end_src
+
 * Motivation
   I like pomodoro technique and I like lemonbar. I wanted to track remaining
   pomodoro time on my panel and couldn't find any ready-made solution. I was also
@@ -77,7 +78,5 @@ multiple timers and can be used as a countdown or as a stopwatch.
 
 * Todo
 ** [#A] add your nix expression to github
-** [#B] Make single config with structopt
-** [#B] put license
-** [#C] rimer stopwatch with step (1- (expt 2 64)) crashes
+** [#B] rimer stopwatch with step (1- (expt 2 64)) crashes
 ** [#C] socket activation
