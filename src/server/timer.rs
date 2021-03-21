@@ -33,6 +33,7 @@ struct Inner {
     start_time: SystemTime,
     state: State,
     elapsed: Duration,
+    arg: Arc<String>,
 }
 
 impl Timer {
@@ -43,6 +44,7 @@ impl Timer {
         update_queue: Sender<u::Message>,
         halt_queue: Sender<Arc<String>>,
         report_queue: Sender<Snapshot>,
+        arg: Arc<String>,
     ) -> Self {
         debug_assert_ne!(duration.as_secs(), 0);
         debug_assert_ne!(step.as_secs(), 0);
@@ -63,6 +65,7 @@ impl Timer {
                     start_time: SystemTime::now(),
                     state: State::Running,
                     elapsed: Duration::from_secs(0),
+                    arg,
                 })
             })
             .unwrap();
@@ -157,8 +160,7 @@ impl Inner {
             match self.receiver.recv() {
                 Ok(Message::Resume) => {
                     self.state = State::Running;
-                    self.start_time =
-                        SystemTime::now().checked_sub(self.elapsed).unwrap();
+                    self.start_time = SystemTime::now().checked_sub(self.elapsed).unwrap();
                     break;
                 }
                 Ok(Message::Pause) => (),
@@ -180,6 +182,7 @@ impl Inner {
             duration: self.duration,
             elapsed: self.elapsed,
             state: self.state,
+            arg: Arc::clone(&self.arg),
         }
     }
 
@@ -214,53 +217,7 @@ impl Inner {
         if let Ok(new_elapsed) = self.start_time.elapsed() {
             self.elapsed = new_elapsed;
         } else {
-            self.start_time =
-                SystemTime::now().checked_sub(self.elapsed).unwrap();
-        }
-    }
-}
-
-#[cfg(test)]
-mod timer {
-    use super::*;
-
-    #[test]
-    fn test_timer() {
-        let (update_queue, update_recv) = channel();
-        let (halt_queue, halt_recv) = channel();
-        let (report_queue, report_recv) = channel();
-
-        let timer = Timer::spawn(
-            Arc::new("hello".into()),
-            Duration::from_secs(30),
-            Duration::from_secs(6),
-            update_queue.clone(),
-            halt_queue.clone(),
-            report_queue.clone(),
-        );
-
-        let timer2 = Timer::spawn(
-            Arc::new("hello bong".into()),
-            Duration::from_secs(30),
-            Duration::from_secs(5),
-            update_queue,
-            halt_queue,
-            report_queue,
-        );
-
-        let start = SystemTime::now();
-        for message in update_recv {
-            match message {
-                u::Message::Update { snapshot } => println!(
-                    "{} {:?} {:?} {} {:?}",
-                    snapshot.name,
-                    snapshot.duration,
-                    snapshot.elapsed,
-                    snapshot.state,
-                    start.elapsed().unwrap()
-                ),
-                _ => (),
-            }
+            self.start_time = SystemTime::now().checked_sub(self.elapsed).unwrap();
         }
     }
 }

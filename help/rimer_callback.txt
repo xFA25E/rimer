@@ -1,0 +1,5 @@
+Callback is a program that will be called on every timer step. This program should take 5 command line arguments in the following order:
+
+$ <CALLBACK> <name> <elapsed time> <total duration> <state> <callback arg>
+
+State can be "running", "paused" or "halted"

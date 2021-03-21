@@ -12,6 +12,7 @@ pub struct Snapshot {
     pub duration: Duration,
     pub elapsed: Duration,
     pub state: State,
+    pub arg: String,
 }
 
 impl PartialEq for Snapshot {
@@ -30,11 +31,12 @@ impl Display for Snapshot {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{} {} {} {}",
+            "{} {} {} {} {}",
             self.name,
             self.elapsed.as_secs(),
             self.duration.as_secs(),
-            self.state
+            self.state,
+            self.arg
         )
     }
 }

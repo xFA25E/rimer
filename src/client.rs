@@ -1,5 +1,5 @@
 use super::{request::Request, response::Response, socket};
-use std::net::Shutdown;
+use std::{io, net::Shutdown};
 
 pub fn run(request: Request) -> std::io::Result<()> {
     let stream = socket::stream()?;
@@ -9,8 +9,13 @@ pub fn run(request: Request) -> std::io::Result<()> {
     let response: Response = serde_json::from_reader(&stream)?;
     match response {
         Ok(Some(snapshots)) => {
-            for snapshot in snapshots {
-                println!("{}", snapshot);
+            if let Request::Report { json: true } = request {
+                let lock = io::stdout();
+                serde_json::to_writer(&lock, &snapshots)?;
+            } else {
+                for snapshot in snapshots {
+                    println!("{}", snapshot);
+                }
             }
         }
         Ok(None) => (),

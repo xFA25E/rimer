@@ -26,7 +26,10 @@ pub fn stream() -> io::Result<UnixStream> {
 }
 
 pub fn path() -> std::io::Result<PathBuf> {
-    let mut p = dirs::runtime_dir().unwrap_or_else(|| PathBuf::from("/tmp"));
+    let mut p = dirs::runtime_dir().unwrap_or_else(|| {
+        eprintln!("XDG_RUNTIME_DIR is undefined! Using /tmp.");
+        PathBuf::from("/tmp")
+    });
     DirBuilder::new().recursive(true).create(&p)?;
     p.push("rimer.socket");
     Ok(p)

@@ -1,5 +1,0 @@
-Updater is a program that will be executed on every timer step. This program should take 4 command line arguments in the following order:
-
-$ <UPDATER> <name> <elapsed time> <total duration> <state>
-
-State can be "running", "paused" or "halted"

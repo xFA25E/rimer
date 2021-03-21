@@ -3,7 +3,7 @@ use clap::{App, Arg};
 use std::{env, path::Path, time::Duration};
 
 pub enum Config {
-    Server { command: String, daemonize: bool },
+    Server { callback: String },
     Client { request: Request },
 }
 
@@ -11,20 +11,17 @@ impl Config {
     pub fn new() -> Self {
         let matches = App::new("rimer")
             .max_term_width(80)
-            .version("1.0")
-            .author("xFA25E")
+            .version("0.1.0")
+            .author("Valeriy Litkovskyy <vlr.ltkvsk@protonmail.com>")
             .about(include_str!("../help/rimer.txt"))
             .arg(
                 Arg::with_name("COMMAND")
                     .empty_values(false)
                     .help("Command")
-                    .possible_values(&[
-                        "start", "add", "pause", "resume", "halt", "report",
-                        "quit",
-                    ])
+                    .possible_values(&["start", "add", "pause", "resume", "halt", "report", "quit"])
                     .required(true)
                     .requires_ifs(&[
-                        ("start", "UPDATER"),
+                        ("start", "CALLBACK"),
                         ("add", "NAME"),
                         ("add", "DURATION"),
                         ("pause", "NAME"),
@@ -34,18 +31,12 @@ impl Config {
                     .value_name("COMMAND"),
             )
             .arg(
-                Arg::with_name("DAEMONIZE")
-                    .help("Launch in background")
-                    .short("b")
-                    .long("background")
-            )
-            .arg(
-                Arg::with_name("UPDATER")
+                Arg::with_name("CALLBACK")
                     .empty_values(false)
-                    .help(include_str!("../help/rimer_updater.txt"))
+                    .help(include_str!("../help/rimer_callback.txt"))
                     .next_line_help(true)
                     .validator(validate_program)
-                    .value_name("UPDATER"),
+                    .value_name("CALLBACK"),
             )
             .arg(
                 Arg::with_name("NAME")
@@ -70,12 +61,28 @@ impl Config {
                 Arg::with_name("STEP")
                     .default_value("10")
                     .empty_values(false)
-                    .help("Updater is executed every <STEP> seconds")
+                    .help("Callback is called every <STEP> seconds")
                     .long("step")
                     .short("s")
                     .takes_value(true)
                     .validator(validate_duration)
                     .value_name("STEP"),
+            )
+            .arg(
+                Arg::with_name("CALLBACK_ARG")
+                    .default_value("")
+                    .empty_values(true)
+                    .help("Callback arg that will be a fifth argument to callback")
+                    .long("arg")
+                    .short("a")
+                    .takes_value(true)
+                    .value_name("CALLBACK_ARG"),
+            )
+            .arg(
+                Arg::with_name("JSON")
+                    .help("Report json")
+                    .short("j")
+                    .long("json"),
             )
             .get_matches();
 
@@ -84,14 +91,14 @@ impl Config {
 
         match value_of("COMMAND") {
             "start" => Self::Server {
-                command: value_of("UPDATER").into(),
-                daemonize: matches.is_present("DAEMONIZE"),
+                callback: value_of("CALLBACK").into(),
             },
             "add" => Self::Client {
                 request: Request::Add {
                     name: value_of("NAME").into(),
                     duration: Duration::from_secs(num_value_of("DURATION")),
                     step: Duration::from_secs(num_value_of("STEP")),
+                    arg: value_of("CALLBACK_ARG").into(),
                 },
             },
             "pause" => Self::Client {
@@ -110,7 +117,9 @@ impl Config {
                 },
             },
             "report" => Self::Client {
-                request: Request::Report,
+                request: Request::Report {
+                    json: matches.is_present("JSON"),
+                },
             },
             "quit" => Self::Client {
                 request: Request::Quit,
@@ -145,12 +154,12 @@ fn validate_program(p: String) -> ClapResult {
                 if is_executable(Path::new(&format!("{}/{}", pa, p))) {
                     return Ok(());
                 } else {
-                    return Err("Updater is not executable".into());
+                    return Err("Callback is not executable".into());
                 }
             }
         }
     }
-    Err("Cannot find given updater command".into())
+    Err("Cannot find given callback command".into())
 }
 
 fn is_executable(path: &Path) -> bool {

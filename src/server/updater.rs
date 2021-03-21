@@ -24,6 +24,7 @@ pub struct Snapshot {
     pub duration: Duration,
     pub elapsed: Duration,
     pub state: State,
+    pub arg: Arc<String>,
 }
 
 impl Updater {
@@ -56,9 +57,7 @@ fn run(command: String, receiver: Receiver<Message>) {
 
     for update in receiver {
         match update {
-            Message::Update { snapshot } => {
-                handle_update(snapshot, &mut last_update, &command)
-            }
+            Message::Update { snapshot } => handle_update(snapshot, &mut last_update, &command),
             Message::Quit => break,
         }
     }
@@ -88,6 +87,7 @@ fn handle_update(s: Snapshot, last_update: &mut Duration, command: &str) {
             .arg(s.elapsed.as_secs().to_string())
             .arg(s.duration.as_secs().to_string())
             .arg(s.state.to_string())
+            .arg(&*s.arg)
             .status()
         {
             eprintln!("{}", error);

@@ -3,7 +3,7 @@ Rimer - timer
 Rimer can run multiple timers simultaneously
 
 It accepts the following commands:
-- <start> main server (requires updater)
+- <start> main server (requires callback)
 - <add> new timer (requires name and duration)
 - <pause/resume/halt> timer (requires name)
 - <quit> main server
@@ -11,8 +11,8 @@ It accepts the following commands:
 
 It can get timer reports. Timer report is a snapshot of all currently running timers in the following format:
 
-name1 elapsed_time total_duration status
-name2 elapsed_time total_duration status
+name1 elapsed_time total_duration status callback_arg
+name2 elapsed_time total_duration status callback_arg
 name3 ...etc.
 
-See <UPDATER> for status explanations
+See <CALLBACK> for status and callback_arg explanations

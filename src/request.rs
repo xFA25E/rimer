@@ -7,6 +7,7 @@ pub enum Request {
         name: String,
         duration: Duration,
         step: Duration,
+        arg: String,
     },
     Pause {
         name: String,
@@ -17,6 +18,8 @@ pub enum Request {
     Resume {
         name: String,
     },
-    Report,
+    Report {
+        json: bool,
+    },
     Quit,
 }

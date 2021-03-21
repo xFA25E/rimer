@@ -2,14 +2,11 @@ mod timer;
 mod updater;
 
 use crate::{
-    request::Request, response::Error, response::Response, snapshot as s,
-    socket::listener,
+    request::Request, response::Error, response::Response, snapshot as s, socket::listener,
 };
-use daemonize::Daemonize;
 use std::{
     collections::{HashMap, HashSet},
     fmt::Display,
-    fs::{DirBuilder, File},
     io::{Read, Write},
     sync::{
         mpsc::{channel, Receiver, Sender, TryRecvError},
@@ -30,11 +27,7 @@ struct Inner {
     report_recv: Receiver<u::Snapshot>,
 }
 
-pub fn run(command: String, daemon: bool) -> Result<(), Box<dyn std::error::Error>> {
-    if daemon {
-        daemonize()?;
-    }
-
+pub fn run(command: String) -> Result<(), Box<dyn std::error::Error>> {
     let (halt_queue, halt_recv) = channel();
     let (report_queue, report_recv) = channel();
     let mut inner = Inner {
@@ -64,12 +57,10 @@ pub fn run(command: String, daemon: bool) -> Result<(), Box<dyn std::error::Erro
                 Request::Add { .. } => {
                     handle_add(request, &stream, &mut inner);
                 }
-                Request::Pause { .. }
-                | Request::Halt { .. }
-                | Request::Resume { .. } => {
+                Request::Pause { .. } | Request::Halt { .. } | Request::Resume { .. } => {
                     handle_cmd(request, &stream, &mut inner)
                 }
-                Request::Report => handle_report(&stream, &inner),
+                Request::Report { .. } => handle_report(&stream, &inner),
                 Request::Quit => {
                     handle_quit(&stream, inner);
                     break 'main;
@@ -94,12 +85,13 @@ fn free_halted_timers(inner: &mut Inner) {
 }
 
 fn handle_add<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
-    let (name, duration, step) = match request {
+    let (name, duration, step, arg) = match request {
         Request::Add {
             name,
             duration,
             step,
-        } => (name, duration, step),
+            arg,
+        } => (name, duration, step, arg),
         _ => unreachable!(),
     };
 
@@ -107,6 +99,7 @@ fn handle_add<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
         send_error(stream, Error::InvalidDuration);
     } else {
         let name = Arc::new(name);
+        let arg = Arc::new(arg);
         if inner.timers.get(&name).is_none() {
             let timer = Timer::spawn(
                 Arc::clone(&name),
@@ -115,6 +108,7 @@ fn handle_add<S: Write + Copy>(request: Request, stream: S, inner: &mut Inner) {
                 inner.updater.queue.clone(),
                 inner.halt_queue.clone(),
                 inner.report_queue.clone(),
+                arg,
             );
             inner.timers.insert(name, timer);
             send_ok(stream);
@@ -195,19 +189,6 @@ fn recv<S: Read + Copy>(stream: S) -> serde_json::Result<Request> {
     serde_json::from_reader(stream)
 }
 
-fn daemonize() -> Result<(), Box<dyn std::error::Error>> {
-    Daemonize::new()
-        .stderr({
-            let mut p = dirs::cache_dir().unwrap();
-            p.push("rimer");
-            DirBuilder::new().recursive(true).create(&p)?;
-            p.push("daemon.err");
-            File::create(p)?
-        })
-        .start()?;
-    Ok(())
-}
-
 impl From<u::Snapshot> for s::Snapshot {
     fn from(source: u::Snapshot) -> Self {
         s::Snapshot {
@@ -215,6 +196,7 @@ impl From<u::Snapshot> for s::Snapshot {
             duration: source.duration,
             elapsed: source.elapsed,
             state: source.state,
+            arg: source.arg.to_string(),
         }
     }
 }
