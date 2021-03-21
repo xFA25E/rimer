@@ -77,6 +77,5 @@ multiple timers and can be used as a countdown or as a stopwatch.
   Also, I have another script that provides a rofi-based menu to rimer.
 
 * Todo
-** [#A] add your nix expression to github
-** [#B] rimer stopwatch with step (1- (expt 2 64)) crashes
-** [#C] socket activation
+** [#A] rimer stopwatch with step (1- (expt 2 64)) crashes
+** [#B] socket activation

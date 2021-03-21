@@ -9,11 +9,11 @@ pkgs.rustPlatform.buildRustPackage rec {
     rev = version;
     sha256 = "1111111111111111111111111111111111111111111111111111";
   };
-  cargoSha256 = "1r03334c8y5kj102cz2f9x57h1v3z3dw7nxhjm7gpin16lwvd5ca";
+  cargoSha256 = "0qxmy2gynk5r4327mfsw0ab7y0g7vx1qarcl0i7d5i5brvykijxv";
   meta = with pkgs.lib; {
     description = "Simple timer that executes commands on update";
     homepage = "https://github.com/xFA25E/rimer";
-    license = licenses.unlicense;
+    license = licenses.gpl3;
     maintainers = [ "Valeriy Litkovskyy <vlr.ltkvsk@protonmail.com>" ];
   };
 }
