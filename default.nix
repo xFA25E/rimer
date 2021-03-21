@@ -7,7 +7,7 @@ pkgs.rustPlatform.buildRustPackage rec {
     owner = "xFA25E";
     repo = pname;
     rev = version;
-    sha256 = "1111111111111111111111111111111111111111111111111111";
+    sha256 = "12cspj036kma9shm0124cvdbi4iaxjwiaw4x3mngpbr3qyh1xrd6";
   };
   cargoSha256 = "0qxmy2gynk5r4327mfsw0ab7y0g7vx1qarcl0i7d5i5brvykijxv";
   meta = with pkgs.lib; {
