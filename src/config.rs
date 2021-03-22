@@ -11,7 +11,7 @@ impl Config {
     pub fn new() -> Self {
         let matches = App::new("rimer")
             .max_term_width(80)
-            .version("0.1.0")
+            .version("0.1.1")
             .author("Valeriy Litkovskyy <vlr.ltkvsk@protonmail.com>")
             .about(include_str!("../help/rimer.txt"))
             .arg(

@@ -201,15 +201,14 @@ impl Inner {
     }
 
     fn update_step(&mut self) {
-        let Self {
-            elapsed,
-            duration,
-            step,
-            ..
-        } = self;
-
-        if elapsed < duration && *duration < *elapsed + *step {
-            *step = *duration - *elapsed;
+        if self.elapsed < self.duration {
+            if let Some(elapsed_plus_step) = self.elapsed.checked_add(self.step) {
+                if self.duration < elapsed_plus_step {
+                    self.step = self.duration - self.elapsed;
+                }
+            } else {
+                self.step = self.duration - self.elapsed;
+            }
         }
     }
 
@@ -217,7 +216,16 @@ impl Inner {
         if let Ok(new_elapsed) = self.start_time.elapsed() {
             self.elapsed = new_elapsed;
         } else {
-            self.start_time = SystemTime::now().checked_sub(self.elapsed).unwrap();
+            if let Some(qty) = SystemTime::now().checked_sub(self.elapsed) {
+                self.start_time = qty;
+            } else {
+                eprintln!(
+                    "Cant update qty: {:#?} {:#?} {:#?}",
+                    SystemTime::now(),
+                    self.start_time,
+                    self.elapsed
+                );
+            }
         }
     }
 }
