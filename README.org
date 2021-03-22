@@ -78,6 +78,3 @@ multiple timers and can be used as a countdown or as a stopwatch.
   It updates lemonbar and my activity.log file when the timer is halted.
 
   Also, I have another script that provides a rofi-based menu to rimer.
-
-* Todo
-** [#B] socket activation
