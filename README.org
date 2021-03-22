@@ -61,7 +61,7 @@ multiple timers and can be used as a countdown or as a stopwatch.
 
   #+begin_src nix
     packageOverrides = pkgs: {
-      rimer = import (super.fetchurl {
+      rimer = import (pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/xFA25E/rimer/f7a4f68389fd0055c45490c4a3d3b0a05a6e668a/default.nix";
         sha256 = "1bgkpvrx3nhds3sh462xghkqpkfwbcpx50s0kagql9gh0m62api2";
       }) { pkgs = pkgs; };
