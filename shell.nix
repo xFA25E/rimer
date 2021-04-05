@@ -15,4 +15,13 @@ with nixpkgs;
 stdenv.mkDerivation {
   name = "rust";
   buildInputs = [ rustup ruststable ];
+  setupRustDev = writeShellScript "setupRustDev" ''
+    rustup toolchain install stable
+    rustup component add rls rust-analysis rust-src
+  '';
+  updateRustDev = writeShellScript "updateRustDev" ''
+    rustup update
+  '';
+  shellHook = ''
+  '';
 }
